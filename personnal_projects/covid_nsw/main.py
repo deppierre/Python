@@ -15,8 +15,8 @@ with urllib.request.urlopen(urlNsw) as url:
 dynamodb = boto3.resource(
     'dynamodb', 
     region_name='us-west-2', 
-    aws_access_key_id='AKIA6FOHCMMAE7CPWYHC',
-    aws_secret_access_key='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'
+    aws_access_key_id='secret',
+    aws_secret_access_key='secret'
 )
 table = dynamodb.Table('covid19_nsw')
 
