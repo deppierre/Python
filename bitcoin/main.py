@@ -12,7 +12,7 @@ def get_text(article=None):
         soup = BeautifulSoup(requests.get(get_base_url(article)).content, 'lxml')
         return ''.join([ item.text for item in soup.select('div.article-pharagraph') ])
     else:
-        print('  Error: no article provided\n Format: get_text(<article>)')
+        print(' Error: no article provided\nFormat: get_text(<article>)')
         return None
 
 if __name__ == "__main__":
