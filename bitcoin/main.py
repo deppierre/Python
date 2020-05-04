@@ -16,6 +16,6 @@ def get_text(article=None):
         return None
 
 if __name__ == "__main__":
-    #Exemple local, sinon passer l'article en parametre de la fonction get_text(<article>)
+    #Exemple local, sinon passer l'article en argument de la fonction get_text(<article>)
     article = 'bitcoin-ekes-out-gains-but-remains-in-red-amid-broader-market-rebound'
     print(get_text(article))
