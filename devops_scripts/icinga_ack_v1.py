@@ -1,3 +1,4 @@
+#executer depuis icingamaster01fe.dc1.vl99.fr.its
 #param /tmp/import_icinga svc-oracle-axis_stg_w4s
 
 import sys, getopt, re
@@ -7,7 +8,7 @@ import time, datetime
 #global parameters
 base_url = ''
 user = 'root'
-password = '<secretkeyhere>'
+password = ''
 nb_days = 2
 urllib3.disable_warnings()
 
@@ -21,14 +22,13 @@ def get_service(host):
 		sys.exit()
 	else: return result.json()
 
-
 #collect hosts in the user file
 arguments = sys.argv
 try:
 	scriptName, file_name = arguments
         try:
                 with open(file_name) as input_file:
-			hosts = dict(( host.rstrip('\n'),[] ) for host in input_file.readlines() if re.search('.fr.its$',host) )
+			hosts = dict(( host.strip().rstrip('\n'),[] ) for host in input_file.readlines() if re.search('(?:fr.its|ingenico.com|servicegroup)$',host.strip()))
 			print('info: {0} hosts detected in the file ({1})'.format(len(hosts),file_name))
         except IOError:
                 print('error: file unavailable ({0})'.format(file_name))
@@ -42,14 +42,31 @@ except ValueError:
 
 #user service decision
 UserServiceIndex = check_ticket = None
+
+#list unique (set) services
 services = list( set( service for host in hosts for service in hosts[host] ))
-print('What service would you like to acknowledge? (1,2,...) :')
-for index, service in enumerate(services):
-	print('\t{0}) {1}'.format(index + 1, service))
-while UserServiceIndex not in range(len(services)): 
-	UserServiceIndex = int( raw_input('choice: ') ) - 1
-UserService = services[UserServiceIndex]
-UserHostsAffected = [ host for host in hosts for service in hosts[host] if UserService == service ]
+exitIndex = len(services) + 1
+if services:
+	print('What service would you like to acknowledge? (1,2,...) :')
+	for index, service in enumerate(services):
+		print('\t{0}) {1}'.format(index + 1, service))
+	print('\t{0}) exit'.format(exitIndex))
+
+	#loop while user input not in the range
+	while UserServiceIndex not in range(exitIndex + 1): 
+		UserServiceIndex = raw_input('choice: ')
+		if not UserServiceIndex: sys.exit()
+		else: UserServiceIndex = int(UserServiceIndex)
+
+	#exit option
+	if UserServiceIndex == exitIndex: sys.exit()
+
+	#get the service associated with the index
+	UserService = services[UserServiceIndex - 1]
+	UserHostsAffected = [ host for host in hosts for service in hosts[host] if UserService == service ]
+else:
+	print('warning: 0 service in error for these hosts')
+	sys.exit(2)
 
 #ticket number
 while check_ticket is None:
